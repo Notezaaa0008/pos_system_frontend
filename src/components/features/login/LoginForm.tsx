@@ -3,7 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { authService, LoginResponse } from "@/service/auth";
+import { authService } from "@/service/auth";
+import { LoginResponse } from "@/service/interface/authInterface";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EyeOff, Eye, Lock, User } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -45,10 +46,6 @@ export default function LoginForm() {
       setIsLoading(true);
       console.log("value: ", values);
       const res: LoginResponse = await authService.login(values);
-
-      console.log("test", res);
-      console.log("test1", res.user);
-      console.log("test2", res.user.role);
 
       if (!res || !res.user) {
         console.error("❌ ข้อมูลที่ส่งกลับมาจาก API ไม่ถูกต้องหรือไม่มีข้อมูล User");

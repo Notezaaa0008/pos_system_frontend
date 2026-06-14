@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,75 +11,135 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link, User, Key, Settings, LogOut } from "lucide-react";
+import { User, Key, Settings, LogOut, ShieldAlert } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { authService } from "@/service/auth";
+import { useRouter } from "next/navigation";
 
 export default function LayoutSystemNavbarComponent() {
-  const handleLogout = () => {};
+  const router = useRouter();
+
+  const handleLogout = async (isLogOutAllDevices: boolean) => {
+    try {
+      await authService.logout(isLogOutAllDevices);
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      sessionStorage.clear();
+      router.push("/login");
+      router.refresh();
+    }
+  };
   return (
-    <header className="h-16 border-b bg-white dark:bg-slate-900 px-6 flex items-center justify-between">
-      <div className="text-sm font-medium text-slate-500">ระบบจัดการหลังบ้านใช้งานร่วมกัน</div>
+    <header className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
+      <div className="pos-body font-medium">ระบบจัดการหลังบ้านใช้งานร่วมกัน</div>
+
       <div className="flex items-center gap-4">
-        <div className="text-right hidden sm:block">
-          <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">สมชาย ขยันยิ่ง</p>
-          <p className="text-xs text-slate-400 capitalize">Owner</p>
+        <div className="flex items-center gap-3 select-none">
+          <div className="text-right hidden sm:block">
+            <p className="text-sm font-semibold text-foreground">สมชาย ขยันยิ่ง</p>
+            <p className="text-xs text-muted-foreground capitalize">Owner</p>
+          </div>
+
+          <Avatar className="h-10 w-10 border border-border">
+            <AvatarImage
+              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
+              alt="Profile"
+            />
+            <AvatarFallback className="bg-muted text-muted-foreground">SC</AvatarFallback>
+          </Avatar>
         </div>
+
+        {/* เส้นแบ่งโซน */}
+        <div className="h-6 w-px bg-border hidden sm:block" />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 select-none outline-none">
-              <Avatar className="h-10 w-10 border border-slate-200 dark:border-slate-800">
-                <AvatarImage
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
-                  alt="Profile"
-                />
-                <AvatarFallback>SC</AvatarFallback>
-              </Avatar>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-xl border border-border hover:bg-accent text-muted-foreground hover:text-accent-foreground outline-none transition-colors"
+            >
+              <Settings className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
+
+          <DropdownMenuContent className="w-60 bg-popover text-popover-foreground border-border" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">สมชาย ขยันยิ่ง</p>
-                <p className="text-xs leading-none text-slate-400">somchai@email.com</p>
+                <p className="text-sm font-medium leading-none text-foreground">เมนูการตั้งค่าบัญชี</p>
+                <p className="text-xs leading-none text-muted-foreground">somchai@email.com</p>
               </div>
             </DropdownMenuLabel>
 
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-border" />
 
-            {/* ปุ่มแก้ไขโปรไฟล์ */}
             <DropdownMenuItem asChild>
-              <Link href="/settings/profile" className="cursor-pointer flex items-center w-full">
-                <User className="mr-2 h-4 w-4" />
+              <Link href="/settings/profile" className="cursor-pointer flex items-center w-full text-sm">
+                <User className="mr-2 h-4 w-4 text-muted-foreground" />
                 <span>แก้ไขโปรไฟล์</span>
               </Link>
             </DropdownMenuItem>
 
-            {/* ปุ่มเปลี่ยนรหัสผ่าน */}
             <DropdownMenuItem asChild>
-              <Link href="/settings/change-password" className="cursor-pointer flex items-center w-full">
-                <Key className="mr-2 h-4 w-4" />
+              <Link href="/settings/change-password" className="cursor-pointer flex items-center w-full text-sm">
+                <Key className="mr-2 h-4 w-4 text-muted-foreground" />
                 <span>เปลี่ยนรหัสผ่าน</span>
               </Link>
             </DropdownMenuItem>
 
-            {/* ปุ่มไปหน้าตั้งค่าอื่นๆ (ถ้ามี) */}
-            <DropdownMenuItem asChild>
-              <Link href="/settings" className="cursor-pointer flex items-center w-full">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>ตั้งค่าระบบ</span>
-              </Link>
-            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-border" />
 
-            <DropdownMenuSeparator />
-
-            {/* ปุ่ม Logout */}
             <DropdownMenuItem
-              className="text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-950/50 cursor-pointer"
-              onClick={handleLogout}
+              className="text-muted-foreground focus:bg-accent cursor-pointer flex items-center w-full text-sm"
+              onClick={() => handleLogout(false)}
             >
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>ออกจากระบบ</span>
+              <LogOut className="mr-2 h-4 w-4 text-muted-foreground" />
+              <span>ออกจากระบบ (เครื่องนี้)</span>
             </DropdownMenuItem>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()} // บังคับไม่ให้ Dropdown ปิดก่อนที่ Modal จะเด้งขึ้นมา
+                  className="text-[var(--danger)] focus:bg-destructive/10 focus:text-[var(--danger)] cursor-pointer flex items-center w-full text-sm"
+                >
+                  <ShieldAlert className="mr-2 h-4 w-4" />
+                  <span>ดีดออกจากทุกเครื่อง</span>
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+
+              {/* หน้าต่างยืนยันความปลอดภัย */}
+              <AlertDialogContent className="bg-popover border-border max-w-md">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-foreground">คุณต้องการดีดออกจากทุกเครื่องใช่ไหม?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-muted-foreground text-sm">
+                    การทำรายการนี้จะยกเลิกการเชื่อมต่อของบัญชีนี้ในทุกอุปกรณ์ทันที
+                    พนักงานคนอื่นที่กำลังใช้งานบัญชีนี้อยู่จะต้องทำการเข้าสู่ระบบใหม่อีกครั้ง
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  {/* นำคลาสปุ่มที่คุณดีไซน์ไว้มาสวมใช้งานได้เลย */}
+                  <AlertDialogCancel className="btn-pos-secondary h-auto py-2 rounded-lg">ยกเลิก</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => handleLogout(true)}
+                    className="btn-pos-danger h-auto py-2 rounded-lg"
+                  >
+                    ใช่, ดีดออกทั้งหมด
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

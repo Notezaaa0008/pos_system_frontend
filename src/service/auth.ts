@@ -1,20 +1,5 @@
 import axiosInstance from "@/utils/axios";
-
-export interface LoginPayload {
-  username: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  message: string;
-  status: string;
-  user: {
-    user_id: string;
-    role: string;
-    display_name: string;
-    image?: string;
-  };
-}
+import { LoginPayload, LoginResponse, LogoutResponse } from "./interface/authInterface";
 
 export const authService = {
   login: async (payload: LoginPayload): Promise<LoginResponse> => {
@@ -33,6 +18,18 @@ export const authService = {
         }),
       );
     }
+
+    return response.data;
+  },
+
+  logout: async (isLogOutAllDevices: boolean): Promise<LogoutResponse> => {
+    const response = await axiosInstance.post(
+      `auth/logout?all=${isLogOutAllDevices}`,
+      {}, // body ว่างๆ
+      {
+        withCredentials: true, // 👈 มั่นใจว่าเบราว์เซอร์จะหยิบคุกกี้แนบไปด้วยแน่นอน
+      },
+    );
 
     return response.data;
   },
