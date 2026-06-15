@@ -25,9 +25,32 @@ import {
 } from "@/components/ui/alert-dialog";
 import { authService } from "@/service/auth";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+interface UserSessionData {
+  userId: string;
+  role: string;
+  displayName: string;
+  image: string;
+}
 
 export default function LayoutSystemNavbarComponent() {
   const router = useRouter();
+  const [user, setUser] = useState<UserSessionData | null>(null);
+
+  useEffect(() => {
+    const userSession = sessionStorage.getItem("user_session");
+    console.log(userSession);
+
+    if (userSession) {
+      try {
+        const userData: UserSessionData = JSON.parse(userSession);
+        setUser(userData);
+      } catch (error) {
+        console.error("Failed to parse user_session:", error);
+      }
+    }
+  }, []);
 
   const handleLogout = async (isLogOutAllDevices: boolean) => {
     try {
@@ -47,13 +70,17 @@ export default function LayoutSystemNavbarComponent() {
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3 select-none">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-semibold text-foreground">สมชาย ขยันยิ่ง</p>
-            <p className="text-xs text-muted-foreground capitalize">Owner</p>
+            <p className="text-sm font-semibold text-foreground">{user?.displayName}</p>
+            <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
           </div>
 
           <Avatar className="h-10 w-10 border border-border">
             <AvatarImage
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
+              src={
+                user?.image
+                  ? user.image
+                  : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
+              }
               alt="Profile"
             />
             <AvatarFallback className="bg-muted text-muted-foreground">SC</AvatarFallback>
